@@ -8,6 +8,15 @@ public class RoundRating {
     private Integer rating;
     private String tournamentName;
     private Integer roundNumber;
+    private Integer holes;
+
+    public Integer getHoles() {
+        return holes;
+    }
+
+    public void setHoles(Integer holes) {
+        this.holes = holes;
+    }
 
     public LocalDate getDate() {
         return date;

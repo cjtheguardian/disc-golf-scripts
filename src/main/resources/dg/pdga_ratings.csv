@@ -1,20 +1,20 @@
-date,rating,tourney,round
-2022-10-15,839,USBC Collegiate Clash,1
-2022-10-15,875,USBC Collegiate Clash,2
-2022-10-16,896,USBC Collegiate Clash,3
-2023-02-04,804,Green Valley,1
-2023-02-04,746,Green Valley,2
-2023-02-05,862,Green Valley,3
-2023-03-17,844,Cachuma Classic,1
-2023-03-18,830,Cachuma Classic,2
-2023-03-18,807,Cachuma Classic,3
-2023-03-18,871,Cachuma Classic,4
-2023-03-25,889,Casitas Campout,1
-2023-03-26,910,Casitas Campout,2
-2023-07-01,957,Conejo,1
-2023-07-01,884,Conejo,2
-2023-09-23,878,Sapwi,1
-2023-09-23,920,Sapwi,2
-2023-10-06,937,Coyote,1
-2023-10-07,895,Coyote,2
-2023-10-08,814,Coyote,3
+date,rating,tourney,round,holes
+2022-10-15,839,USBC Collegiate Clash,1,18
+2022-10-15,875,USBC Collegiate Clash,2,18
+2022-10-16,896,USBC Collegiate Clash,3,18
+2023-02-04,804,Green Valley,1,15
+2023-02-04,746,Green Valley,2,15
+2023-02-05,862,Green Valley,3,15
+2023-03-17,844,Cachuma Classic,1,18
+2023-03-18,830,Cachuma Classic,2,18
+2023-03-18,807,Cachuma Classic,3,18
+2023-03-18,871,Cachuma Classic,4,18
+2023-03-25,889,Casitas Campout,1,27
+2023-03-26,910,Casitas Campout,2,27
+2023-07-01,957,Conejo,1,20
+2023-07-01,884,Conejo,2,20
+2023-09-22,878,Sapwi,1,20
+2023-09-22,918,Sapwi,2,20
+2023-10-06,937,Coyote,1,18
+2023-10-07,895,Coyote,2,19
+2023-10-08,814,Coyote,3,18

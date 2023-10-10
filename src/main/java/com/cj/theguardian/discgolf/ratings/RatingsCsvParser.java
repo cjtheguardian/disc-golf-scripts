@@ -22,6 +22,7 @@ public class RatingsCsvParser {
             rating.setRating(Integer.parseInt(nextRow.get("rating")));
             rating.setTournamentName(nextRow.get("tourney"));
             rating.setRoundNumber(Integer.parseInt(nextRow.get("round")));
+            rating.setHoles(Integer.parseInt(nextRow.get("holes")));
             ratings.add(rating);
         }
         return ratings;

@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,35 +26,64 @@ public class RatingsCalculator {
     }
 
     public static Integer calcRatingsAsOfDate(LocalDate asOfDate, List<RoundRating> roundRatings) {
+        // only take the rounds before the as of date
+        roundRatings = roundRatings.stream().filter(rr -> !asOfDate.isBefore(rr.getDate())).collect(Collectors.toList());
 
-        roundRatings = filterForQualifiedRounds(asOfDate, roundRatings);
+        roundRatings = filterForQualifiedRounds(roundRatings);
 
         System.out.println("Using ratings: " + roundRatings);
         List<RoundRating> worthDouble = new ArrayList<>();
-        if (roundRatings.size() >= 9) { // TODO this should be 9
-            Integer numberOfRoundsWorthDouble = BigDecimal.valueOf(roundRatings.size()).setScale(2).multiply(BigDecimal.valueOf(0.25)).setScale(0, RoundingMode.CEILING).intValue();
+        if (roundRatings.size() >= 9) {
+            Integer numberOfRoundsWorthDouble = BigDecimal.valueOf(roundRatings.size()).setScale(2).multiply(BigDecimal.valueOf(0.25)).setScale(0, RoundingMode.HALF_UP).intValue();
             worthDouble = roundRatings.subList(0, numberOfRoundsWorthDouble);
             System.out.println("worth double: " + worthDouble);
         }
 
-        List<BigDecimal> ratingsToAverage = Stream.concat(
-                roundRatings.stream().map(rr -> rr.getRating()),
-                worthDouble.stream().map(rr -> rr.getRating())
-        ).map(i -> BigDecimal.valueOf(i))
+        List<WeightedRating> weightedRatings = Stream.concat(
+                roundRatings.stream().map(rr -> weightedRating(rr)),
+                worthDouble.stream().map(rr -> weightedRating(rr))
+        )
                 .collect(Collectors.toList());
 
-        return MathUtils.calcAverage(ratingsToAverage).setScale(0, RoundingMode.HALF_UP).intValue();
+        ToDoubleFunction<BigDecimal> toDouble = bd -> bd.doubleValue();
+        double sumWeighted = weightedRatings.stream().map(wr -> wr.weightedRating()).collect(Collectors.summingDouble(toDouble));
+        double totalWeight = weightedRatings.stream().map(wr -> wr.weight).collect(Collectors.summingDouble(toDouble));
+
+        BigDecimal finalRating = BigDecimal.valueOf(sumWeighted).divide(BigDecimal.valueOf(totalWeight), 0, RoundingMode.HALF_UP);
+        System.out.println("rating: " + finalRating);
+        return finalRating.intValue();
 
     }
 
-    private static List<RoundRating> filterForQualifiedRounds(LocalDate asOfDate, List<RoundRating> roundRatings) {
-        roundRatings = roundRatings.stream().filter(rr -> !asOfDate.isBefore(rr.getDate())).collect(Collectors.toList());
+    private static WeightedRating weightedRating(RoundRating rr) {
+        int holes = rr.getHoles();
+        BigDecimal weight = BigDecimal.valueOf(holes).divide(BigDecimal.valueOf(18), 3, RoundingMode.HALF_UP);
+        WeightedRating rating = new WeightedRating();
+        rating.rawRating = BigDecimal.valueOf(rr.getRating());
+        rating.weight = weight;
+        return rating;
+    }
 
-        LocalDate oneYearAgo = asOfDate.minusYears(1);
+    private static class WeightedRating {
+        BigDecimal rawRating;
+        BigDecimal weight;
+
+        public BigDecimal weightedRating() {
+            return rawRating.multiply(weight);
+        }
+    }
+
+    private static List<RoundRating> filterForQualifiedRounds(List<RoundRating> roundRatings) {
+
+        LocalDate latestRoundDate = roundRatings.stream().map(RoundRating::getDate).max(Comparator.naturalOrder()).orElse(null);
+        if(latestRoundDate == null) {
+            return new ArrayList<>();
+        }
+        LocalDate oneYearAgo = latestRoundDate.minusYears(1);
         List<RoundRating> withinLastYear = roundRatings.stream().filter(rr -> rr.getDate().isAfter(oneYearAgo)).sorted(sortedInDescDate).collect(Collectors.toList());
         if (withinLastYear.size() < 8) {
 
-            LocalDate twoYearsAgo = asOfDate.minusYears(2);
+            LocalDate twoYearsAgo = latestRoundDate.minusYears(2);
             List<RoundRating> withinLast2Year = roundRatings.stream().filter(rr -> rr.getDate().isAfter(twoYearsAgo)).sorted(sortedInDescDate).collect(Collectors.toList());
             if (withinLast2Year.size() > 8) {
                 roundRatings = withinLast2Year.subList(0, 8);
